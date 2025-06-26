@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ita</title>
+    <link rel="icon" href="./assets/img/logo.png" type="image/x-icon" />
+    <style>
+      :root {
+        --game-bg: #2c3e50;
+        --player-color: #3498db;
+        --enemy-sadness-color: #e74c3c;
+        --enemy-boss-color: #f39c12;
+        --enemy-colleague-color: #27ae60;
+        --text-color: #ecf0f1;
+        --panel-bg: rgba(44, 62, 80, 0.8);
+        --button-bg: #3498db;
+        --button-hover-bg: #2980b9;
+      }
+
+      body {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: var(--game-bg);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        overflow: hidden;
+        color: var(--text-color);
+      }
+
+      .game-container {
+        position: relative;
+        width: 90vw;
+        max-width: 1200px;
+        height: 70vh;
+        max-height: 700px;
+        background-color: #34495e;
+        border: 5px solid #2c3e50;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .game-header {
+        width: 90vw;
+        max-width: 1200px;
+        background-color: var(--panel-bg);
+        padding: 15px 20px;
+        border-radius: 10px 10px 0 0;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .game-header h1 {
+        margin: 0;
+        color: var(--text-color);
+        font-size: 1.8em;
+      }
+
+      .score-display {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #f1c40f;
+      }
+
+      .player-character {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 100px;
+        background-color: var(--player-color);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+        font-size: 0.9em;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+        transition: transform 0.15s ease-out, left 0.15s ease-out,
+          bottom 0.15s ease-out;
+      }
+
+      .player-character img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      .enemy-wrapper {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.1s ease-out, opacity 0.3s ease-out;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        z-index: 5;
+      }
+
+      .enemy {
+        width: 80px;
+        height: 80px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+        font-size: 0.8em;
+      }
+
+      .enemy img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+      }
+
+      .enemy-description {
+        margin-top: 5px;
+        font-size: 0.8em;
+        color: var(--text-color);
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 2px 8px;
+        border-radius: 5px;
+        white-space: nowrap;
+      }
+
+      .enemy.sadness {
+        background-color: var(--enemy-sadness-color);
+      }
+      .enemy.boss {
+        background-color: var(--enemy-boss-color);
+      }
+
+      .enemy-wrapper.hit {
+        transform: scale(1.1);
+        opacity: 0.5;
+      }
+
+      .enemy-wrapper.defeated {
+        opacity: 0;
+        transform: scale(0.1);
+        pointer-events: none;
+      }
+
+      .hit-effect {
+        position: absolute;
+        font-size: 2em;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 0 0 5px #e74c3c, 0 0 10px #e74c3c;
+        animation: fadeOutUp 0.8s forwards;
+        pointer-events: none;
+        z-index: 20;
+      }
+
+      @keyframes fadeOutUp {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+      }
+
+      .game-controls {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .game-button {
+        padding: 12px 25px;
+        font-size: 1.1em;
+        background-color: var(--button-bg);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .game-button:hover {
+        background-color: var(--button-hover-bg);
+        transform: translateY(-2px);
+      }
+      .game-button:active {
+        transform: translateY(0px);
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="game-header">
+      <h1>Đánh bại nổi buồn</h1>
+      <p>click vào nổi buồn</p>
+      <div class="score-display">Điểm: <span id="score">0</span></div>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+      <div class="player-character" id="playerCharacter">
+        <img src="../sinhNhat//assets/img/profile.png" alt="Nhân vật của bạn" />
+      </div>
+    </div>
+
+    <div class="game-controls">
+      <button class="game-button" id="restartGameButton">Chơi Lại</button>
+    </div>
+
+    <audio
+      id="hitSound"
+      src="../sinhNhat/assets/audio/hit.mp3"
+      preload="auto"
+    ></audio>
+
+    <script>
+      const gameContainer = document.getElementById("gameContainer");
+      const scoreDisplay = document.getElementById("score");
+      const restartGameButton = document.getElementById("restartGameButton");
+      const playerCharacter = document.getElementById("playerCharacter");
+      const hitSound = document.getElementById("hitSound");
+
+      let score = 0;
+      const enemies = [];
+      const enemyTypes = [
+        {
+          name: "Nỗi Buồn",
+          className: "sadness",
+          img: "../sinhNhat/assets/img/sad.png",
+          description: "Gánh nặng cuộc sống",
+        },
+        {
+          name: "Sếp",
+          className: "boss",
+          img: "../sinhNhat/assets/img/boss.png",
+          description: "Ông sếp khó tính",
+        },
+      ];
+
+      const initialPlayerLeft = "50%";
+      const initialPlayerBottom = "20px";
+
+      function createEnemy(type) {
+        const enemyWrapper = document.createElement("div");
+        enemyWrapper.classList.add("enemy-wrapper");
+        enemyWrapper.dataset.name = type.name;
+
+        const enemyImageDiv = document.createElement("div");
+        enemyImageDiv.classList.add("enemy", type.className);
+
+        const imgElement = document.createElement("img");
+        imgElement.src = type.img;
+        imgElement.alt = type.name;
+        enemyImageDiv.appendChild(imgElement);
+
+        const descriptionDiv = document.createElement("div");
+        descriptionDiv.classList.add("enemy-description");
+        descriptionDiv.textContent = type.description;
+
+        enemyWrapper.appendChild(enemyImageDiv);
+        enemyWrapper.appendChild(descriptionDiv);
+
+        enemyWrapper.style.left = `${
+          Math.random() * (gameContainer.offsetWidth - 150)
+        }px`;
+        enemyWrapper.style.top = `${
+          Math.random() * (gameContainer.offsetHeight - 200)
+        }px`;
+
+        gameContainer.appendChild(enemyWrapper);
+
+        enemyWrapper.addEventListener("click", (event) => {
+          if (!enemyWrapper.classList.contains("defeated")) {
+            hitSound.currentTime = 0;
+            hitSound
+              .play()
+              .catch((e) => console.error("Error playing sound:", e));
+
+            const enemyRect = enemyWrapper.getBoundingClientRect();
+            const gameRect = gameContainer.getBoundingClientRect();
+
+            const targetLeft =
+              enemyRect.left -
+              gameRect.left +
+              enemyWrapper.offsetWidth / 2 -
+              playerCharacter.offsetWidth / 2;
+            const targetBottom =
+              gameRect.height -
+              (enemyRect.top - gameRect.top) -
+              enemyWrapper.offsetHeight / 2 -
+              playerCharacter.offsetHeight / 2 +
+              20;
+
+            playerCharacter.style.left = `${targetLeft}px`;
+            playerCharacter.style.bottom = `${targetBottom}px`;
+            playerCharacter.style.transform = "translateX(0) scale(1.05)";
+
+            setTimeout(() => {
+              playerCharacter.style.left = initialPlayerLeft;
+              playerCharacter.style.bottom = initialPlayerBottom;
+              playerCharacter.style.transform = "translateX(-50%) scale(1)";
+            }, 150);
+
+            score += 10;
+            scoreDisplay.textContent = score;
+
+            enemyWrapper.classList.add("hit");
+            setTimeout(() => {
+              enemyWrapper.classList.remove("hit");
+              enemyWrapper.classList.add("defeated");
+              setTimeout(() => {
+                enemyWrapper.remove();
+                if (
+                  document.querySelectorAll(".enemy-wrapper:not(.defeated)")
+                    .length === 0
+                ) {
+                  spawnEnemies();
+                }
+              }, 300);
+            }, 100);
+
+            const hitEffect = document.createElement("div");
+            hitEffect.classList.add("hit-effect");
+            hitEffect.textContent = "+10";
+            hitEffect.style.left = `${event.clientX - gameRect.left}px`;
+            hitEffect.style.top = `${event.clientY - gameRect.top}px`;
+            gameContainer.appendChild(hitEffect);
+            setTimeout(() => hitEffect.remove(), 800);
+          }
+        });
+        enemies.push(enemyWrapper);
+      }
+
+      function spawnEnemies() {
+        enemies.forEach((enemyWrapper) => enemyWrapper.remove());
+        enemies.length = 0;
+
+        enemyTypes.forEach((type) => {
+          for (let i = 0; i < 2; i++) {
+            createEnemy(type);
+          }
+        });
+      }
+
+      function initializeGame() {
+        score = 0;
+        scoreDisplay.textContent = score;
+        spawnEnemies();
+        playerCharacter.style.left = initialPlayerLeft;
+        playerCharacter.style.bottom = initialPlayerBottom;
+        playerCharacter.style.transform = "translateX(-50%) scale(1)";
+      }
+
+      restartGameButton.addEventListener("click", initializeGame);
+
+      initializeGame();
+    </script>
+  </body>
+</html>

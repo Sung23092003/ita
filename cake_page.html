@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ita</title>
+    <link rel="icon" href="./assets/img/logo.png" type="image/x-icon" />
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #05353d;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+      }
+
+      #cake-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transform: scale(0);
+        animation: zoomInCake 2s forwards;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      @keyframes zoomInCake {
+        from {
+          transform: scale(0);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .cake-image {
+        width: 250px;
+        height: auto;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        display: block;
+      }
+
+      #wishButton {
+        padding: 10px 20px;
+        font-size: 1.2em;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      #wishButton:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+      }
+
+      #candle-container {
+        position: absolute;
+        top: calc(62% - 100px);
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: opacity 0.5s ease-in-out;
+        z-index: 3;
+      }
+
+      .candle {
+        width: 10px;
+        height: 40px;
+        background-color: #f7dc6f;
+        border-radius: 2px;
+        position: relative;
+        margin-bottom: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(
+          to bottom,
+          #f7dc6f 0%,
+          #f7dc6f 70%,
+          #e6be2e 100%
+        );
+      }
+
+      .flame {
+        position: absolute;
+        top: -15px;
+        left: 0;
+        width: 10px;
+        height: 20px;
+        background-color: orange;
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        box-shadow: 0 0 8px 4px rgba(255, 165, 0, 0.8),
+          0 0 15px 7px rgba(255, 220, 0, 0.5);
+        animation: flicker 0.2s infinite alternate;
+      }
+
+      @keyframes flicker {
+        from {
+          transform: scaleY(1) translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: scaleY(0.9) translateY(2px);
+          opacity: 0.8;
+        }
+      }
+
+      #countdown {
+        font-size: 2.2em;
+        font-weight: bold;
+        color: #333;
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+      }
+
+      .hidden {
+        display: none;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cake-container">
+      <img
+        src="./assets/img/cake.png"
+        alt="Bánh Sinh Nhật"
+        class="cake-image"
+      />
+
+      <button id="wishButton">Bấm vào để uớc</button>
+      <div id="candle-container" class="hidden">
+        <div class="candle">
+          <div class="flame"></div>
+        </div>
+        <p id="countdown">12</p>
+      </div>
+    </div>
+
+    <audio id="wishSound" src="../sinhNhat/assets/audio/music.mp3" preload="auto"></audio>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const cakeContainer = document.getElementById("cake-container");
+        const wishButton = document.getElementById("wishButton");
+        const candleContainer = document.getElementById("candle-container");
+        const countdownElement = document.getElementById("countdown");
+        const wishSound = document.getElementById("wishSound");
+
+        let countdownInterval;
+
+        function showElement(element) {
+          element.classList.remove("hidden");
+          setTimeout(() => (element.style.opacity = "1"), 10);
+        }
+
+        function hideElement(element) {
+          element.style.opacity = "0";
+          setTimeout(() => element.classList.add("hidden"), 500);
+        }
+
+        wishButton.addEventListener("click", () => {
+          wishButton.disabled = true;
+          showElement(candleContainer);
+
+          wishSound.currentTime = 0;
+          wishSound.play().catch(e => console.error("Lỗi khi phát âm thanh:", e));
+
+          let timeLeft = 12; 
+          countdownElement.textContent = timeLeft;
+
+          countdownInterval = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+              clearInterval(countdownInterval);
+              wishSound.pause();
+              wishSound.currentTime = 0;
+
+              hideElement(cakeContainer);
+              setTimeout(() => (window.location.href = "wish_page.html"), 600);
+            }
+          }, 1000);
+        });
+      });
+    </script>
+  </body>
+</html>

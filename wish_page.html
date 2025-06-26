@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ita</title>
+    <link rel="icon" href="./assets/img/logo.png" type="image/x-icon" />
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #05353d;
+        font-family: Arial, sans-serif;
+        overflow: hidden;
+      }
+
+      #wish-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        transition: opacity 0.5s ease-in-out;
+        transform: translateY(20px);
+        animation: slideInUp 0.5s forwards;
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      #wish-page h1 {
+        color: #333;
+        margin-bottom: 15px;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+      }
+
+      #wish-page p {
+        color: #666;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      #wishInput {
+        width: 100%;
+        height: 150px;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1.1em;
+        resize: vertical;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      #wishInput:focus {
+        border-color: #007bff;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1),
+          0 0 0 3px rgba(0, 123, 255, 0.25);
+        outline: none; 
+      }
+
+      #submitWishButton, #nextPageButton {
+        padding: 12px 25px;
+        font-size: 1.3em;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease,
+          box-shadow 0.3s ease;
+        box-shadow: 0 5px 10px rgba(0, 123, 255, 0.2);
+        margin-top: 15px; 
+      }
+
+      #submitWishButton:hover, #nextPageButton:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 12px rgba(0, 123, 255, 0.3);
+      }
+      
+      #nextPageButton {
+        background-color: #28a745; 
+        box-shadow: 0 5px 10px rgba(40, 167, 69, 0.2);
+      }
+
+      #nextPageButton:hover {
+        background-color: #218838;
+        box-shadow: 0 7px 12px rgba(40, 167, 69, 0.3);
+      }
+
+      #wishConfirmation {
+        margin-top: 15px;
+        color: #28a745;
+        font-weight: bold;
+        font-size: 1.1em;
+        opacity: 0; 
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      .hidden {
+        display: none;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wish-page">
+      <h1>Điều Ước Của Ita ^^</h1>
+      <p>Nhập điều ước vào đây nó sẽ dễ thành hiện thực hơn!</p>
+
+      <form
+        action="https://formspree.io/f/mdkzpjvw"
+        method="POST"
+        id="wishForm"
+      >
+        <textarea
+          id="wishInput"
+          name="wish_message"
+          placeholder="Nhập điều ước của ita..."
+        ></textarea>
+        <button type="submit" id="submitWishButton">Gửi Điều Ước</button>
+      </form>
+
+      <p id="wishConfirmation" class="hidden">
+        Ông bụt đã thấy 
+      </p>
+
+      <button id="nextPageButton" class="hidden">Tiếp Theo</button>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const wishForm = document.getElementById("wishForm");
+        const wishInput = document.getElementById("wishInput");
+        const submitWishButton = document.getElementById("submitWishButton");
+        const wishConfirmation = document.getElementById("wishConfirmation");
+        const nextPageButton = document.getElementById("nextPageButton");
+
+        function showElement(element) {
+          element.classList.remove("hidden");
+          setTimeout(() => (element.style.opacity = "1"), 10);
+        }
+
+        function hideElement(element) {
+          element.style.opacity = "0";
+          setTimeout(() => element.classList.add("hidden"), 500);
+        }
+
+        wishForm.addEventListener("submit", async (event) => {
+          event.preventDefault(); 
+
+          const wish = wishInput.value.trim();
+          if (wish) {
+            submitWishButton.disabled = true;
+
+            try {
+              const response = await fetch(wishForm.action, {
+                method: wishForm.method,
+                headers: {
+                  Accept: "application/json",
+                },
+                body: new FormData(wishForm), 
+              });
+
+              if (response.ok) {
+                showElement(wishConfirmation);
+                wishInput.value = ""; 
+                
+                hideElement(wishForm);
+                showElement(nextPageButton);
+
+              } else {
+                alert("Có lỗi xảy ra khi gửi điều ước. Vui lòng thử lại.");
+                console.error("Formspree error:", await response.json());
+              }
+            } catch (error) {
+              console.error("Lỗi mạng:", error);
+              alert("Không thể kết nối đến máy chủ. Vui lòng thử lại.");
+            } finally {
+            }
+          } else {
+            alert("Nhập vào điiii!");
+          }
+        });
+
+        nextPageButton.addEventListener("click", () => {
+          window.location.href = "game_page.html"; 
+        });
+      });
+    </script>
+  </body>
+</html>
